@@ -299,7 +299,15 @@
         log.fields['מספר קשתית'] && 
         log.fields['מספר קשתית'].includes(currentAligner.id)
       );
-      const daysElapsed = currentLogs.length;
+      
+      // חישוב מספר ימים ייחודיים (אגריגציה לפי תאריך)
+      const uniqueDates = new Set();
+      currentLogs.forEach(log => {
+        if (log.fields['תאריך']) {
+          uniqueDates.add(log.fields['תאריך']);
+        }
+      });
+      const daysElapsed = uniqueDates.size;
       const avgHours = daysElapsed > 0 ? (hoursCompleted / daysElapsed).toFixed(1) : 0;
       const estimatedDays = hoursRemaining > 0 && avgHours > 0 
         ? Math.ceil(hoursRemaining / avgHours) 
