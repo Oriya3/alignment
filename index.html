@@ -215,7 +215,7 @@
     const CONFIG = {
       ALIGNERS_TABLE: 'tblxrDmKu22Emajqf',
       DAILY_LOG_TABLE: 'tblSf2uEre1fQJOjX',
-      TOKEN: 'patA0kZnYDzqHJEqz.ac1704c0c19e483252715cd14bb9e759b9b8ddaa6d507581e2935026cbf84d7a',
+      TOKEN: 'patER6MuuhejxhcUA.cb6704d0454bb40cffed878bdd4d2def43027f605a8bd0868d184d64fee74494',
       BASE_ID: 'appG0RNkEyiiETARE'
     };
 
@@ -396,15 +396,13 @@
       const logHtml = dailyLogs.slice(0, 21).map(log => {
         const date = log.fields['תאריך'] || '-';
         const hours = log.fields['שעות שימוש היום'] || 0;
-        const metGoal = log.fields['השגתי יעד? ✓'] || false;
         
         return `
           <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
             <div class="flex items-center justify-between mb-2">
-              <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-white text-sm ${metGoal ? 'bg-green-500' : 'bg-orange-400'}">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-white text-sm bg-green-500">
                 ${hours}
               </div>
-              ${metGoal ? '<div class="text-green-500 text-lg">✓</div>' : ''}
             </div>
             <p class="text-xs font-medium text-gray-700 truncate">${date}</p>
             <p class="text-xs text-gray-500">${hours} שעות</p>
@@ -523,7 +521,6 @@
                 'תאריך': date,
                 'שעות שימוש היום': hours,
                 'מספר קשתית': [currentAligner.id], // קישור לקשתית הנוכחית
-                'השגתי יעד? ✓': hours >= 12
               }
             })
           }
