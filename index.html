@@ -214,12 +214,14 @@
   <script>
     const CONFIG = {
       ALIGNERS_TABLE: 'tblxrDmKu22Emajqf',
-      DAILY_LOG_TABLE: 'tblSf2uEre1fQJOjX'
+      DAILY_LOG_TABLE: 'tblSf2uEre1fQJOjX',
+      TOKEN: 'pat7DuqWfzIjb465j.2c11f67e45b790e9522c9542b2da91bbae06a8e4fa20cf359ec17235ec9f9258',
+      BASE_ID: 'appG0RNkEyiiETARE'
     };
 
     async function loadData() {
-      const token = 'pat7DuqWfzIjb465j.2c11f67e45b790e9522c9542b2da91bbae06a8e4fa20cf359ec17235ec9f9258';
-      const baseId = 'appG0RNkEyiiETARE';
+      const token = CONFIG.TOKEN;
+      const baseId = CONFIG.BASE_ID;
       
       if (!token) {
         showError('אנא הזיני API Token');
@@ -439,8 +441,8 @@
       
       // קבלת מספר הקשתית הנוכחית
       try {
-        const token = 'patomEKxbCIAxsgTr.d017343910029de8a3e4e36423b4e8c0bf501b6354bdce6c363d4fdc23b36cfc';
-        const baseId = 'appG0RNkEyiiETARE';
+        const token = CONFIG.TOKEN;
+        const baseId = CONFIG.BASE_ID;
         
         const alignersResponse = await fetch(
           `https://api.airtable.com/v0/${baseId}/${CONFIG.ALIGNERS_TABLE}`,
@@ -485,8 +487,8 @@
         submitButton.textContent = 'שומר...';
         submitButton.disabled = true;
         
-        const token = 'patomEKxbCIAxsgTr.d017343910029de8a3e4e36423b4e8c0bf501b6354bdce6c363d4fdc23b36cfc';
-        const baseId = 'appG0RNkEyiiETARE';
+        const token = CONFIG.TOKEN;
+        const baseId = CONFIG.BASE_ID;
         const date = document.getElementById('reportDate').value;
         const hours = parseFloat(document.getElementById('reportHours').value);
         
@@ -547,8 +549,8 @@
     // פונקציה למעבר לקשתית הבאה
     async function advanceToNextAligner() {
       console.log('🚀 מתחיל מעבר לקשתית הבאה...');
-      const token = 'patomEKxbCIAxsgTr.d017343910029de8a3e4e36423b4e8c0bf501b6354bdce6c363d4fdc23b36cfc';
-      const baseId = 'appG0RNkEyiiETARE';
+      const token = CONFIG.TOKEN;
+      const baseId = CONFIG.BASE_ID;
       
       try {
         console.log('📡 טוען נתוני קשתיות...');
