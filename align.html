@@ -236,7 +236,13 @@
       const token = CONFIG.TOKEN;
       const baseId = CONFIG.BASE_ID;
       
-      if (!token) {
+      // בודק אם הטוקן לא הוחלף (עדיין placeholder)
+      if (!token || token === '{{AIRTABLE_TOKEN}}') {
+        showError('⚠️ הטוקן לא הוגדר. ודאי שה-AIRTABLE_TOKEN מוגדר ב-GitHub Secrets.');
+        return;
+      }
+      
+      if (!token || token.trim() === '') {
         showError('אנא הזיני API Token');
         return;
       }
@@ -253,7 +259,8 @@
         );
 
         if (!alignersResponse.ok) {
-          throw new Error('שגיאה בטעינת נתוני קשתיות');
+          const errorText = await alignersResponse.text();
+          throw new Error(`שגיאה בטעינת נתוני קשתיות (${alignersResponse.status}): ${errorText}`);
         }
 
         const alignersData = await alignersResponse.json();
@@ -269,7 +276,8 @@
         );
 
         if (!dailyResponse.ok) {
-          throw new Error('שגיאה בטעינת יומן');
+          const errorText = await dailyResponse.text();
+          throw new Error(`שגיאה בטעינת יומן (${dailyResponse.status}): ${errorText}`);
         }
 
         const dailyData = await dailyResponse.json();
@@ -282,7 +290,9 @@
         document.getElementById('error').classList.add('hidden');
 
       } catch (error) {
-        showError(error.message);
+        console.error('❌ שגיאה בטעינת נתונים:', error);
+        const errorMessage = error.message || 'Failed to fetch';
+        showError(`שגיאה: ${errorMessage}. בדוק את הקונסול לפרטים נוספים.`);
       }
     }
 
