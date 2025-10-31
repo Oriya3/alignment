@@ -229,7 +229,10 @@
       ALIGNERS_TABLE: 'tblxrDmKu22Emajqf',
       DAILY_LOG_TABLE: 'tblSf2uEre1fQJOjX',
       TOKEN: '{{AIRTABLE_TOKEN}}', // יוחלף אוטומטית על ידי GitHub Actions בזמן build
-      BASE_ID: 'appG0RNkEyiiETARE'
+      BASE_ID: 'appG0RNkEyiiETARE',
+      // אם יש Cloudflare Worker proxy, הגדר אותו כאן:
+      // PROXY_URL: 'https://YOUR-WORKER.workers.dev'
+      PROXY_URL: null // null = לא להשתמש ב-proxy
     };
 
     async function loadData() {
@@ -253,17 +256,28 @@
 
       try {
         // טוען קשתיות
-        const alignersResponse = await fetch(
-          `https://api.airtable.com/v0/${baseId}/${CONFIG.ALIGNERS_TABLE}`,
-          {
-            method: 'GET',
-            mode: 'cors',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
+        const apiUrl = `https://api.airtable.com/v0/${baseId}/${CONFIG.ALIGNERS_TABLE}`;
+        
+        // אם יש proxy, השתמש בו
+        const fetchUrl = CONFIG.PROXY_URL 
+          ? `${CONFIG.PROXY_URL}?url=${encodeURIComponent(apiUrl)}`
+          : apiUrl;
+        
+        const fetchOptions = CONFIG.PROXY_URL 
+          ? {
+              method: 'GET',
+              mode: 'cors'
             }
-          }
-        );
+          : {
+              method: 'GET',
+              mode: 'cors',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            };
+        
+        const alignersResponse = await fetch(fetchUrl, fetchOptions);
 
         if (!alignersResponse.ok) {
           const errorText = await alignersResponse.text();
@@ -273,17 +287,28 @@
         const alignersData = await alignersResponse.json();
 
         // טוען יומן
-        const dailyResponse = await fetch(
-          `https://api.airtable.com/v0/${baseId}/${CONFIG.DAILY_LOG_TABLE}?sort[0][field]=תאריך&sort[0][direction]=desc`,
-          {
-            method: 'GET',
-            mode: 'cors',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
+        const dailyApiUrl = `https://api.airtable.com/v0/${baseId}/${CONFIG.DAILY_LOG_TABLE}?sort[0][field]=תאריך&sort[0][direction]=desc`;
+        
+        // אם יש proxy, השתמש בו
+        const dailyFetchUrl = CONFIG.PROXY_URL 
+          ? `${CONFIG.PROXY_URL}?url=${encodeURIComponent(dailyApiUrl)}`
+          : dailyApiUrl;
+        
+        const dailyFetchOptions = CONFIG.PROXY_URL 
+          ? {
+              method: 'GET',
+              mode: 'cors'
             }
-          }
-        );
+          : {
+              method: 'GET',
+              mode: 'cors',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            };
+        
+        const dailyResponse = await fetch(dailyFetchUrl, dailyFetchOptions);
 
         if (!dailyResponse.ok) {
           const errorText = await dailyResponse.text();
