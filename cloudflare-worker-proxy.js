@@ -11,7 +11,20 @@
 
 export default {
   async fetch(request, env) {
-    // בדוק שהבקשה היא GET (אפשר להוסיף POST אם צריך)
+    // טיפול ב-OPTIONS requests (CORS preflight)
+    if (request.method === 'OPTIONS') {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Max-Age': '86400',
+        },
+      });
+    }
+    
+    // בדוק שהבקשה היא GET או POST
     if (request.method !== 'GET' && request.method !== 'POST') {
       return new Response('Method not allowed', { status: 405 });
     }
