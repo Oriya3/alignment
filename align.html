@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>דאשבורד יישור שיניים 🦷</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 min-h-screen">
+  
+  <!-- Loader -->
+  <div id="loader" class="fixed inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center z-50">
+    <div class="text-center">
+      <div class="animate-spin rounded-full h-16 w-16 border-4 border-purple-200 border-t-purple-600 mx-auto mb-4"></div>
+      <h2 class="text-2xl font-bold text-gray-800 mb-2">🦷 טוען את הנתונים שלך...</h2>
+      <p class="text-gray-600">רגע קט, מכין את הדשבורד</p>
+    </div>
+  </div>
+
+  <!-- הודעת שגיאה -->
+  <div id="error" class="hidden max-w-7xl mx-auto p-6">
+    <div class="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg shadow-lg">
+      <div class="flex items-center gap-3">
+        <div class="text-2xl">⚠️</div>
+        <div>
+          <h3 class="font-bold text-lg mb-1">שגיאה</h3>
+          <p id="errorMessage"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- דאשבורד -->
+  <div id="dashboard" class="max-w-7xl mx-auto p-6 relative hidden">
+    <!-- כפתורים למעלה -->
+    <div class="absolute top-6 right-6 flex gap-3 z-50">
+      <button
+        onclick="showReportForm()"
+        class="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-600 transition-colors"
+      >
+        📝 דיווח יומי
+      </button>
+      <button
+        id="nextAlignerButton"
+        onclick="advanceToNextAligner()"
+        class="bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-green-600 transition-colors hidden"
+      >
+        ➡️ מעבר לקשתית הבאה
+      </button>
+          </div>
+
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-gray-800 mb-2">
+        🦷 מסע יישור השיניים שלי ✨
+      </h1>
+      <p class="text-gray-600">עוקבת אחרי החיוך המושלם</p>
+              </div>
+
+    <!-- התראת הצלחה -->
+    <div id="successAlert" class="hidden bg-gradient-to-r from-green-400 to-emerald-500 text-white p-6 rounded-2xl shadow-lg mb-6">
+      <div class="flex items-center gap-4">
+        <div class="text-4xl">🏆</div>
+              <div>
+          <h3 class="text-2xl font-bold">מזל טוב! 🎉</h3>
+          <p class="text-lg">הגעת ליעד! זמן לעבור לקשתית הבאה</p>
+              </div>
+            </div>
+          </div>
+
+    <!-- סטטיסטיקות -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+      <div class="bg-white rounded-2xl p-6 shadow-lg border-2 border-purple-200">
+        <div class="text-sm text-gray-600 mb-1">קשתית נוכחית</div>
+        <div class="text-4xl font-bold text-purple-600" id="currentAligner">-</div>
+        <div class="text-xs text-gray-500" id="totalAligners">מתוך -</div>
+              </div>
+
+      <div class="bg-white rounded-2xl p-6 shadow-lg border-2 border-blue-200">
+        <div class="text-sm text-gray-600 mb-1">שעות שצברתי</div>
+        <div class="text-4xl font-bold text-blue-600" id="hoursCompleted">-</div>
+        <div class="text-xs text-gray-500">מתוך 170 שעות</div>
+              </div>
+
+      <div class="bg-white rounded-2xl p-6 shadow-lg border-2 border-orange-200">
+        <div class="text-sm text-gray-600 mb-1">ממוצע שעות ביום</div>
+        <div class="text-4xl font-bold text-orange-600" id="avgHours">-</div>
+        <div class="text-xs text-gray-500">קצב מעולה!</div>
+          </div>
+
+      <div class="bg-white rounded-2xl p-6 shadow-lg border-2 border-green-200">
+        <div class="text-sm text-gray-600 mb-1">ימים בקשתית</div>
+        <div class="text-4xl font-bold text-green-600" id="daysElapsed">-</div>
+        <div class="text-xs text-gray-500" id="estimatedDays">-</div>
+          </div>
+        </div>
+
+    <!-- התקדמות בקשתית -->
+    <div class="bg-white rounded-2xl p-8 shadow-lg mb-6">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">
+        🎯 התקדמות בקשתית <span id="currentAlignerTitle">-</span>
+          </h2>
+          
+      <div class="mb-4">
+        <div class="flex justify-between text-sm mb-2">
+          <span class="font-semibold text-gray-700" id="progressText">- / 170 שעות</span>
+          <span class="font-bold text-purple-600" id="progressPercent">-%</span>
+            </div>
+        <div class="w-full bg-gray-200 rounded-full h-8 overflow-hidden">
+          <div id="progressBar" class="h-full bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 transition-all duration-500 flex items-center justify-end px-3" style="width: 0%">
+            <span class="text-white font-bold text-sm" id="progressBarText"></span>
+              </div>
+            </div>
+          </div>
+
+      <div id="progressMessage" class="bg-blue-50 rounded-xl p-4 mt-4"></div>
+            </div>
+
+    <!-- מפת קשתיות -->
+    <div class="bg-white rounded-2xl p-8 shadow-lg mb-6">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">
+        🗺️ מפת הקשתיות
+      </h2>
+      <div id="alignerMap" class="flex flex-wrap gap-3 mb-3"></div>
+      <div class="flex justify-between mt-3 text-xs text-gray-600">
+        <span class="flex items-center gap-1">
+          <div class="w-3 h-3 bg-green-500 rounded"></div>
+          הושלם
+        </span>
+        <span class="flex items-center gap-1">
+          <div class="w-3 h-3 bg-blue-500 rounded"></div>
+          נוכחי
+        </span>
+        <span class="flex items-center gap-1">
+          <div class="w-3 h-3 bg-gray-200 rounded"></div>
+          עתידי
+        </span>
+            </div>
+        </div>
+
+    <!-- יומן -->
+    <div class="bg-white rounded-2xl p-8 shadow-lg mb-6">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">
+        📅 יומן שעות אחרון
+          </h2>
+      <div id="dailyLog" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-80 overflow-y-auto"></div>
+    </div>
+
+    <!-- מוטיבציה -->
+    <div class="bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 text-white rounded-2xl p-8 shadow-lg text-center">
+      <h3 class="text-2xl font-bold mb-3">כל יום את צועדת קדימה! 💪</h3>
+      <p class="text-lg opacity-90">החיוך המושלם שלך ממתין בסוף המסע - המשיכי כך! 🌟</p>
+      <p class="text-sm opacity-75 mt-2" id="remainingAligners">-</p>
+    </div>
+
+    <!-- כפתור רענון -->
+    <div class="text-center mt-6">
+      <button onclick="loadData()" class="bg-white text-purple-600 font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all">
+        🔄 רענן נתונים
+      </button>
+            </div>
+
+    <!-- טופס דיווח יומי -->
+    <div id="reportForm" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+        <h3 class="text-lg font-semibold mb-4">דיווח יומי</h3>
+        <form onsubmit="submitDailyReport(event)">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              תאריך
+            </label>
+            <input
+              type="date"
+              id="reportDate"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            >
+              </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              מספר קשתית נוכחית
+            </label>
+            <div id="currentAlignerDisplay" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700">
+              טוען...
+            </div>
+          </div>
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              שעות היום
+            </label>
+            <input
+              type="number"
+              id="reportHours"
+              min="0"
+              max="24"
+              step="0.5"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="כמה שעות היום?"
+              required
+            >
+          </div>
+          <div class="flex gap-3">
+            <button
+              type="submit"
+              id="submitButton"
+              class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+            >
+              שמור
+            </button>
+            <button
+              type="button"
+              onclick="hideReportForm()"
+              class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400"
+            >
+              ביטול
+            </button>
+                </div>
+        </form>
+            </div>
+          </div>
+        </div>
+
+  <script>
+    const CONFIG = {
+      ALIGNERS_TABLE: 'tblxrDmKu22Emajqf',
+      DAILY_LOG_TABLE: 'tblSf2uEre1fQJOjX',
+      TOKEN: '{{AIRTABLE_TOKEN}}', // יוחלף אוטומטית על ידי GitHub Actions
+      BASE_ID: 'appG0RNkEyiiETARE'
+    };
+
+    async function loadData() {
+      const token = CONFIG.TOKEN;
+      const baseId = CONFIG.BASE_ID;
+      
+      if (!token) {
+        showError('אנא הזיני API Token');
+        return;
+      }
+
+      try {
+        // טוען קשתיות
+        const alignersResponse = await fetch(
+          `https://api.airtable.com/v0/${baseId}/${CONFIG.ALIGNERS_TABLE}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+
+        if (!alignersResponse.ok) {
+          throw new Error('שגיאה בטעינת נתוני קשתיות');
+        }
+
+        const alignersData = await alignersResponse.json();
+
+        // טוען יומן
+        const dailyResponse = await fetch(
+          `https://api.airtable.com/v0/${baseId}/${CONFIG.DAILY_LOG_TABLE}?sort[0][field]=תאריך&sort[0][direction]=desc`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+
+        if (!dailyResponse.ok) {
+          throw new Error('שגיאה בטעינת יומן');
+        }
+
+        const dailyData = await dailyResponse.json();
+
+        // מעבד ומציג נתונים
+        displayData(alignersData.records, dailyData.records);
+
+        // מסתיר הודעת שגיאה ומציג דאשבורד
+        document.getElementById('dashboard').classList.remove('hidden');
+        document.getElementById('error').classList.add('hidden');
+
+      } catch (error) {
+        showError(error.message);
+      }
+    }
+
+    function displayData(aligners, dailyLogs) {
+      // הסתר loader והצג דשבורד
+      document.getElementById('loader').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      
+      // מוצא קשתית נוכחית
+      const currentAligner = aligners.find(a => a.fields['סטטוס'] === 'בשימוש כעת ✨');
+      
+      if (!currentAligner) {
+        showError('לא נמצאה קשתית נוכחית');
+        return;
+      }
+
+      const alignerNumber = currentAligner.fields['מספר קשתית'];
+      const hoursCompleted = currentAligner.fields['שעות ששמתי'] || 0;
+      const hoursRemaining = currentAligner.fields['כמה שעות עוד חסר?'] || 170;
+      const canAdvance = currentAligner.fields['אפשר לעבור להבאה?'] || false;
+      
+      // חישוב יעד שעות כולל (שעות שהושלמו + שעות שנותרו)
+      const totalTargetHours = hoursCompleted + hoursRemaining;
+
+      // מחשב סטטיסטיקות
+      const totalAligners = aligners.length;
+      const currentLogs = dailyLogs.filter(log => 
+        log.fields['מספר קשתית'] && 
+        log.fields['מספר קשתית'].includes(currentAligner.id)
+      );
+      
+      // חישוב מספר ימים ייחודיים (אגריגציה לפי תאריך)
+      const uniqueDates = new Set();
+      currentLogs.forEach(log => {
+        if (log.fields['תאריך']) {
+          uniqueDates.add(log.fields['תאריך']);
+        }
+      });
+      const daysElapsed = uniqueDates.size;
+      const avgHours = daysElapsed > 0 ? (hoursCompleted / daysElapsed).toFixed(1) : 0;
+      const estimatedDays = hoursRemaining > 0 && avgHours > 0 
+        ? Math.ceil(hoursRemaining / avgHours) 
+        : 0;
+      
+      // חישוב אחוז התקדמות אמיתי
+      const progressPercent = totalTargetHours > 0 ? Math.min((hoursCompleted / totalTargetHours) * 100, 100) : 0;
+      
+      // לוגים לבדיקה
+      console.log('🔍 נתוני התקדמות:');
+      console.log('- שעות שהושלמו:', hoursCompleted);
+      console.log('- שעות שנותרו:', hoursRemaining);
+      console.log('- יעד כולל:', totalTargetHours);
+      console.log('- אחוז התקדמות:', progressPercent);
+
+      // מציג סטטיסטיקות
+      document.getElementById('currentAligner').textContent = alignerNumber;
+      document.getElementById('totalAligners').textContent = `מתוך ${totalAligners} קשתיות`;
+      document.getElementById('hoursCompleted').textContent = hoursCompleted;
+      document.getElementById('avgHours').textContent = avgHours;
+      document.getElementById('daysElapsed').textContent = daysElapsed;
+      document.getElementById('estimatedDays').textContent = 
+        estimatedDays > 0 ? `עוד ${estimatedDays} ימים להחלפה` : 'מוכנה להחלפה!';
+
+      // התראת הצלחה - רק אם באמת הגעת ליעד
+      if (canAdvance && hoursCompleted >= totalTargetHours) {
+        document.getElementById('successAlert').classList.remove('hidden');
+        const nextAlignerButton = document.getElementById('nextAlignerButton');
+        nextAlignerButton.classList.remove('hidden');
+        nextAlignerButton.textContent = `➡️ מעבר לקשתית ${parseInt(alignerNumber) + 1}`;
+      } else {
+        document.getElementById('successAlert').classList.add('hidden');
+        document.getElementById('nextAlignerButton').classList.add('hidden');
+      }
+
+      // פס התקדמות
+      document.getElementById('currentAlignerTitle').textContent = alignerNumber;
+      document.getElementById('progressText').textContent = `${totalTargetHours} / ${hoursCompleted} שעות`;
+      document.getElementById('progressPercent').textContent = `${progressPercent.toFixed(0)}%`;
+      document.getElementById('progressBar').style.width = `${progressPercent}%`;
+      
+      if (progressPercent > 15) {
+        document.getElementById('progressBarText').textContent = `${progressPercent.toFixed(0)}%`;
+      }
+
+      // הודעת התקדמות
+      const progressMsg = document.getElementById('progressMessage');
+      if (hoursRemaining > 0) {
+        progressMsg.className = 'bg-blue-50 rounded-xl p-4 mt-4';
+        progressMsg.innerHTML = `
+          <p class="text-blue-900 font-semibold">💪 עוד ${hoursRemaining} שעות ועוברים לקשתית הבאה!</p>
+          <p class="text-blue-700 text-sm mt-1">בקצב הנוכחי של ${avgHours} שעות ביום - עוד בערך ${estimatedDays} ימים</p>
+        `;
+      } else {
+        progressMsg.className = 'bg-green-50 rounded-xl p-4 mt-4';
+        progressMsg.innerHTML = `
+          <p class="text-green-900 font-semibold">✅ הגעת ליעד! זמן לעבור לקשתית ${alignerNumber + 1}</p>
+        `;
+      }
+
+      // מפת קשתיות - רשת של ריבועים
+      const mapHtml = aligners
+        .sort((a, b) => a.fields['מספר קשתית'] - b.fields['מספר קשתית'])
+        .map(aligner => {
+          const num = aligner.fields['מספר קשתית'];
+          const status = aligner.fields['סטטוס'];
+          let className = 'w-12 h-12 rounded-lg flex items-center justify-center text-xs font-bold transition-all ';
+          
+          if (status === 'הושלם! ✓') {
+            className += 'bg-green-500 text-white';
+          } else if (status === 'בשימוש כעת ✨') {
+            className += 'bg-blue-500 text-white ring-4 ring-blue-300';
+          } else {
+            className += 'bg-gray-200 text-gray-500';
+          }
+          
+          return `<div class="${className}">${num}</div>`;
+        })
+        .join('');
+      
+      document.getElementById('alignerMap').innerHTML = mapHtml;
+
+      // יומן
+      const logHtml = dailyLogs.slice(0, 21).map(log => {
+        const date = log.fields['תאריך'] || '-';
+        const hours = log.fields['שעות שימוש היום'] || 0;
+        
+        return `
+          <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+            <div class="flex items-center justify-between mb-2">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-white text-sm bg-green-500">
+                ${hours}
+              </div>
+            </div>
+            <p class="text-xs font-medium text-gray-700 truncate">${date}</p>
+            <p class="text-xs text-gray-500">${hours} שעות</p>
+          </div>
+        `;
+      }).join('');
+      
+      document.getElementById('dailyLog').innerHTML = logHtml;
+
+      // מוטיבציה
+      document.getElementById('remainingAligners').textContent = 
+        `עוד ${totalAligners - alignerNumber} קשתיות ואת שם!`;
+    }
+
+    function showError(message) {
+      // הסתר loader והצג הודעת שגיאה
+      document.getElementById('loader').classList.add('hidden');
+      document.getElementById('dashboard').classList.add('hidden');
+      
+      const errorDiv = document.getElementById('error');
+      const errorMessage = document.getElementById('errorMessage');
+      if (errorMessage) {
+        errorMessage.textContent = message;
+      }
+      errorDiv.classList.remove('hidden');
+    }
+
+    // פונקציות לטופס דיווח יומי
+    async function showReportForm() {
+      const form = document.getElementById('reportForm');
+      const dateInput = document.getElementById('reportDate');
+      const alignerDisplay = document.getElementById('currentAlignerDisplay');
+      
+      // הגדרת תאריך היום כברירת מחדל
+      const today = new Date().toISOString().split('T')[0];
+      dateInput.value = today;
+      
+      // קבלת מספר הקשתית הנוכחית
+      try {
+        const token = CONFIG.TOKEN;
+        const baseId = CONFIG.BASE_ID;
+        
+        const alignersResponse = await fetch(
+          `https://api.airtable.com/v0/${baseId}/${CONFIG.ALIGNERS_TABLE}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+        
+        const alignersData = await alignersResponse.json();
+        const currentAligner = alignersData.records.find(a => a.fields['סטטוס'] === 'בשימוש כעת ✨');
+        
+        if (currentAligner) {
+          alignerDisplay.textContent = `קשתית ${currentAligner.fields['מספר קשתית']}`;
+        } else {
+          alignerDisplay.textContent = 'לא נמצאה קשתית נוכחית';
+        }
+      } catch (error) {
+        alignerDisplay.textContent = 'שגיאה בטעינת נתונים';
+      }
+      
+      form.classList.remove('hidden');
+    }
+
+    function hideReportForm() {
+      document.getElementById('reportForm').classList.add('hidden');
+      // איפוס הטופס
+      document.getElementById('reportDate').value = '';
+      document.getElementById('reportHours').value = '';
+      document.getElementById('currentAlignerDisplay').textContent = 'טוען...';
+    }
+
+    async function submitDailyReport(event) {
+      event.preventDefault();
+      
+      const submitButton = document.getElementById('submitButton');
+      const originalText = submitButton.textContent;
+      
+      try {
+        // מצב טעינה
+        submitButton.textContent = 'שומר...';
+        submitButton.disabled = true;
+        
+        const token = CONFIG.TOKEN;
+        const baseId = CONFIG.BASE_ID;
+        const date = document.getElementById('reportDate').value;
+        const hours = parseFloat(document.getElementById('reportHours').value);
+        
+        // קבלת הקשתית הנוכחית
+        const alignersResponse = await fetch(
+          `https://api.airtable.com/v0/${baseId}/${CONFIG.ALIGNERS_TABLE}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+        
+        const alignersData = await alignersResponse.json();
+        const currentAligner = alignersData.records.find(a => a.fields['סטטוס'] === 'בשימוש כעת ✨');
+        
+        if (!currentAligner) {
+          throw new Error('לא נמצאה קשתית נוכחית');
+        }
+        
+        // שליחה ל-Airtable עם קישור לקשתית
+        const response = await fetch(
+          `https://api.airtable.com/v0/${baseId}/${CONFIG.DAILY_LOG_TABLE}`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              fields: {
+                'תאריך': date,
+                'שעות שימוש היום': hours,
+                'מספר קשתית': [currentAligner.id], // קישור לקשתית הנוכחית
+              }
+            })
+          }
+        );
+        
+        if (response.ok) {
+          // סגירת הטופס ורענון הנתונים
+          hideReportForm();
+          loadData(); // רענון הדאשבורד
+        } else {
+          throw new Error('שגיאה בשמירת הדיווח');
+        }
+        
+      } catch (error) {
+        showError('שגיאה בשמירת הדיווח: ' + error.message);
+      } finally {
+        // החזרת המצב הרגיל
+        submitButton.textContent = originalText;
+        submitButton.disabled = false;
+      }
+    }
+
+    // פונקציה למעבר לקשתית הבאה
+    async function advanceToNextAligner() {
+      console.log('🚀 מתחיל מעבר לקשתית הבאה...');
+      const token = CONFIG.TOKEN;
+      const baseId = CONFIG.BASE_ID;
+      
+      try {
+        console.log('📡 טוען נתוני קשתיות...');
+        // קבלת הקשתית הנוכחית
+        const alignersResponse = await fetch(
+          `https://api.airtable.com/v0/${baseId}/${CONFIG.ALIGNERS_TABLE}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+        
+        if (!alignersResponse.ok) {
+          throw new Error(`שגיאה בטעינת קשתיות: ${alignersResponse.status}`);
+        }
+        
+        const alignersData = await alignersResponse.json();
+        console.log('📊 נתוני קשתיות:', alignersData);
+        
+        const currentAligner = alignersData.records.find(a => a.fields['סטטוס'] === 'בשימוש כעת ✨');
+        console.log('🎯 קשתית נוכחית:', currentAligner);
+        
+        if (!currentAligner) {
+          throw new Error('לא נמצאה קשתית נוכחית');
+        }
+        
+        const nextAlignerNumber = currentAligner.fields['מספר קשתית'] + 1;
+        const nextAligner = alignersData.records.find(a => a.fields['מספר קשתית'] === nextAlignerNumber);
+        console.log('➡️ קשתית הבאה:', nextAligner);
+        
+        if (!nextAligner) {
+          alert('זו הקשתית האחרונה!');
+          return;
+        }
+        
+        // עדכון סטטוס הקשתית הנוכחית ל"הושלם"
+        console.log(`🔄 מעדכן קשתית ${currentAligner.fields['מספר קשתית']} ל"הושלם"...`);
+        const currentAlignerResponse = await fetch(
+          `https://api.airtable.com/v0/${baseId}/${CONFIG.ALIGNERS_TABLE}/${currentAligner.id}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              fields: {
+                'סטטוס': 'הושלם! ✓'
+              }
+            })
+          }
+        );
+        
+        console.log('📝 תגובת עדכון קשתית נוכחית:', currentAlignerResponse.status);
+        
+        if (!currentAlignerResponse.ok) {
+          const errorText = await currentAlignerResponse.text();
+          throw new Error(`שגיאה בעדכון סטטוס הקשתית הנוכחית: ${errorText}`);
+        }
+        
+        // עדכון סטטוס הקשתית הבאה ל"בשימוש כעת"
+        console.log(`🔄 מעדכן קשתית ${nextAligner.fields['מספר קשתית']} ל"בשימוש כעת"...`);
+        const nextAlignerResponse = await fetch(
+          `https://api.airtable.com/v0/${baseId}/${CONFIG.ALIGNERS_TABLE}/${nextAligner.id}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              fields: {
+                'סטטוס': 'בשימוש כעת ✨',
+              }
+            })
+          }
+        );
+        
+        console.log('📝 תגובת עדכון קשתית הבאה:', nextAlignerResponse.status);
+        
+        if (!nextAlignerResponse.ok) {
+          const errorText = await nextAlignerResponse.text();
+          throw new Error(`שגיאה בעדכון סטטוס הקשתית הבאה: ${errorText}`);
+        }
+        
+        console.log('✅ עדכון סטטוסים הושלם בהצלחה');
+        
+        // רענון הדאשבורד
+        console.log('🔄 מרענן דאשבורד...');
+        await loadData();
+        console.log('✅ דאשבורד רוענן בהצלחה');
+        
+        // הודעת הצלחה
+        alert(`עברת בהצלחה לקשתית ${nextAligner.fields['מספר קשתית']}! 🎉`);
+        
+      } catch (error) {
+        console.error('❌ שגיאה במעבר לקשתית הבאה:', error);
+        showError('שגיאה במעבר לקשתית הבאה: ' + error.message);
+      }
+    }
+
+    // טען נתונים אוטומטית עם טעינת העמוד
+    document.addEventListener('DOMContentLoaded', function() {
+      loadData();
+    });
+  </script>
+
+</body>
+</html>
