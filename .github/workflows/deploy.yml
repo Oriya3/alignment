@@ -30,15 +30,53 @@ jobs:
           AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
         run: |
           echo "🔒 Replacing token placeholder with secret (not committing to repo)..."
-          # מחליף את ה-placeholder בטוקן - רק בזיכרון, לא ב-commit
-          sed -i "s|'{{AIRTABLE_TOKEN}}'|'${AIRTABLE_TOKEN}'|g" align.html
-          echo "✅ Token injected for build (stays only in build artifact, not in code)"
           
-          # בודק שההחלפה הצליחה
-          if grep -q "{{AIRTABLE_TOKEN}}" align.html; then
-            echo "⚠️ Warning: Token placeholder still exists!"
+          # בודק אם הטוקן קיים
+          if [ -z "$AIRTABLE_TOKEN" ]; then
+            echo "❌ ERROR: AIRTABLE_TOKEN secret is not set!"
             exit 1
           fi
+          
+          echo "✅ Token exists (length: ${#AIRTABLE_TOKEN} characters)"
+          
+          # מחליף את ה-placeholder בטוקן באמצעות Python (יותר אמין מ-sed)
+          python3 << 'PYEOF'
+          import os
+          
+          token = os.environ.get('AIRTABLE_TOKEN', '')
+          if not token:
+              print("❌ ERROR: AIRTABLE_TOKEN not found in environment!")
+              exit(1)
+          
+          # קורא את הקובץ
+          with open('align.html', 'r', encoding='utf-8') as f:
+              content = f.read()
+          
+          # מחליף את ה-placeholder
+          old_token = "'{{AIRTABLE_TOKEN}}'"
+          new_token = f"'{token}'"
+          
+          if old_token not in content:
+              print("⚠️ WARNING: Token placeholder not found in file!")
+              print(f"Looking for: {old_token}")
+              exit(1)
+          
+          content = content.replace(old_token, new_token)
+          
+          # שומר את הקובץ
+          with open('align.html', 'w', encoding='utf-8') as f:
+              f.write(content)
+          
+          print("✅ Token replaced successfully")
+          
+          # מוודא שההחלפה הצליחה
+          if '{{AIRTABLE_TOKEN}}' in content:
+              print("❌ ERROR: Placeholder still exists after replacement!")
+              exit(1)
+          PYEOF
+          
+          echo "Verifying replacement..."
+          grep -n "TOKEN:" align.html | head -1 || echo "Line found"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
