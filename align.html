@@ -247,7 +247,8 @@
         hasToken: !!token,
         tokenLength: token ? token.length : 0,
         tokenStart: token ? token.substring(0, 10) : 'N/A',
-        isPlaceholder: token === '{{AIRTABLE_TOKEN}}'
+        isPlaceholder: token === '{{AIRTABLE_TOKEN}}',
+        tokenPreview: token && token.length > 20 ? token.substring(0, 20) + '...' : token
       });
 
       try {
@@ -255,8 +256,11 @@
         const alignersResponse = await fetch(
           `https://api.airtable.com/v0/${baseId}/${CONFIG.ALIGNERS_TABLE}`,
           {
+            method: 'GET',
+            mode: 'cors',
             headers: {
-              'Authorization': `Bearer ${token}`
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
             }
           }
         );
@@ -272,8 +276,11 @@
         const dailyResponse = await fetch(
           `https://api.airtable.com/v0/${baseId}/${CONFIG.DAILY_LOG_TABLE}?sort[0][field]=תאריך&sort[0][direction]=desc`,
           {
+            method: 'GET',
+            mode: 'cors',
             headers: {
-              'Authorization': `Bearer ${token}`
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
             }
           }
         );
