@@ -34,10 +34,18 @@ jobs:
           # בודק אם הטוקן קיים
           if [ -z "$AIRTABLE_TOKEN" ]; then
             echo "❌ ERROR: AIRTABLE_TOKEN secret is not set!"
+            echo "💡 Please go to Settings → Secrets → Actions and add AIRTABLE_TOKEN"
+            exit 1
+          fi
+          
+          # בודק שהטוקן לא ריק
+          if [ "${#AIRTABLE_TOKEN}" -lt 10 ]; then
+            echo "❌ ERROR: AIRTABLE_TOKEN seems too short (${#AIRTABLE_TOKEN} chars)"
             exit 1
           fi
           
           echo "✅ Token exists (length: ${#AIRTABLE_TOKEN} characters)"
+          echo "✅ Token starts with: ${AIRTABLE_TOKEN:0:7}..."
           
           # מחליף את ה-placeholder בטוקן באמצעות Python (יותר אמין מ-sed)
           python3 << 'PYEOF'
@@ -76,7 +84,25 @@ jobs:
           PYEOF
           
           echo "Verifying replacement..."
-          grep -n "TOKEN:" align.html | head -1 || echo "Line found"
+          if grep -q "{{AIRTABLE_TOKEN}}" align.html; then
+            echo "❌ CRITICAL ERROR: Placeholder still in file after replacement!"
+            echo "First 200 chars of TOKEN line:"
+            grep "TOKEN:" align.html | head -c 200
+            exit 1
+          fi
+          
+          echo "✅ Verification passed - placeholder replaced"
+          echo "Token line (first 100 chars, token masked):"
+          grep "TOKEN:" align.html | head -1 | sed 's/\([a-zA-Z0-9]\{20\}\)[a-zA-Z0-9]*/\1***/g' || echo "Line not found"
+          
+      - name: Verify artifact before upload
+        run: |
+          echo "🔍 Verifying align.html before upload..."
+          if grep -q "{{AIRTABLE_TOKEN}}" align.html; then
+            echo "❌ ERROR: Placeholder found in artifact!"
+            exit 1
+          fi
+          echo "✅ Artifact verified - no placeholder found"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
