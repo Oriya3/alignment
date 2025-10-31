@@ -236,16 +236,19 @@
       const token = CONFIG.TOKEN;
       const baseId = CONFIG.BASE_ID;
       
-      // בודק אם הטוקן לא הוחלף (עדיין placeholder)
-      if (!token || token === '{{AIRTABLE_TOKEN}}') {
-        showError('⚠️ הטוקן לא הוגדר. ודאי שה-AIRTABLE_TOKEN מוגדר ב-GitHub Secrets.');
-        return;
-      }
-      
+      // בודק אם הטוקן ריק
       if (!token || token.trim() === '') {
         showError('אנא הזיני API Token');
         return;
       }
+      
+      // לוג לדיבוג
+      console.log('🔍 Token check:', {
+        hasToken: !!token,
+        tokenLength: token ? token.length : 0,
+        tokenStart: token ? token.substring(0, 10) : 'N/A',
+        isPlaceholder: token === '{{AIRTABLE_TOKEN}}'
+      });
 
       try {
         // טוען קשתיות
