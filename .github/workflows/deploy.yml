@@ -107,6 +107,23 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
+      - name: Final verification before upload
+        run: |
+          echo "🔍 Final check of align.html content..."
+          echo "File size: $(wc -c < align.html) bytes"
+          echo "Checking if placeholder exists:"
+          if grep -q "{{AIRTABLE_TOKEN}}" align.html; then
+            echo "❌ CRITICAL: Placeholder still exists!"
+            exit 1
+          fi
+          echo "Checking if token was replaced (should see 'pat' in token line):"
+          if grep -q "TOKEN: 'pat" align.html; then
+            echo "✅ Token replacement confirmed - file contains actual token"
+          else
+            echo "⚠️ WARNING: Token line doesn't start with 'pat' as expected"
+            grep "TOKEN:" align.html | head -1 || echo "TOKEN line not found"
+          fi
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
